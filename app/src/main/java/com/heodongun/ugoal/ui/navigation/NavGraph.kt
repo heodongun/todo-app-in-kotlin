@@ -180,9 +180,21 @@ fun UgoalNavHost(
                 SmartListsScreen(
                     viewModel = smartListsViewModel,
                     onListClick = { smartList ->
+                        smartListsViewModel.selectSmartList(smartList)
                         navController.navigate(Screen.SmartListDetail.createRoute(smartList.id))
                     },
                     onCreateList = { /* TODO: Navigate to create list screen */ },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(Screen.SmartListDetail.route) {
+                SmartListDetailScreen(
+                    viewModel = smartListsViewModel,
+                    onTodoClick = { todoId ->
+                        navController.navigate(Screen.TodoDetail.createRoute(todoId))
+                    },
+                    onAddTodo = { navController.navigate(Screen.AddTodo.route) },
                     onNavigateBack = { navController.popBackStack() }
                 )
             }

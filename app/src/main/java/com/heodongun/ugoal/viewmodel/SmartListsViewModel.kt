@@ -50,6 +50,28 @@ class SmartListsViewModel(
             initialValue = emptyList()
         )
 
+    private val _selectedSmartList = MutableStateFlow<SmartList?>(null)
+    val selectedSmartList: StateFlow<SmartList?> = _selectedSmartList.asStateFlow()
+
+    val filteredTodos: StateFlow<List<EnhancedTodo>> = combine(
+        allTodos,
+        selectedSmartList
+    ) { todos, selectedList ->
+        if (selectedList != null) {
+            FilterEngine.applyFilter(todos, selectedList.filters, selectedList.sortBy)
+        } else {
+            emptyList()
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    fun selectSmartList(smartList: SmartList) {
+        _selectedSmartList.value = smartList
+    }
+
     fun getTodoCount(smartList: SmartList): Int {
         return FilterEngine.getTodoCount(allTodos.value, smartList)
     }
@@ -60,6 +82,18 @@ class SmartListsViewModel(
             smartList.filters,
             smartList.sortBy
         )
+    }
+
+    fun toggleTodoComplete(todoId: String) {
+        viewModelScope.launch {
+            repository.toggleTodoComplete(todoId)
+        }
+    }
+
+    fun deleteTodo(todoId: String) {
+        viewModelScope.launch {
+            repository.deleteTodo(todoId)
+        }
     }
 
     fun createSmartList(smartList: SmartList) {

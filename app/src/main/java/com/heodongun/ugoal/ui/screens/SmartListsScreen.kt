@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.heodongun.ugoal.data.models.SmartList
 import com.heodongun.ugoal.ui.theme.*
+import com.heodongun.ugoal.ui.theme.parseColor
 import com.heodongun.ugoal.viewmodel.SmartListsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -243,101 +244,4 @@ fun SmartListCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SmartListDetailScreen(
-    smartList: SmartList,
-    viewModel: SmartListsViewModel,
-    onTodoClick: (String) -> Unit,
-    onAddTodo: () -> Unit,
-    onNavigateBack: () -> Unit
-) {
-    val todos = remember(smartList) {
-        viewModel.getFilteredTodos(smartList)
-    }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(smartList.icon)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(smartList.name)
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "뒤로")
-                    }
-                },
-                actions = {
-                    if (!smartList.isSystem) {
-                        IconButton(onClick = { /* Edit list */ }) {
-                            Icon(Icons.Default.Edit, "편집")
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundWhite
-                )
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddTodo,
-                containerColor = parseColor(smartList.color)
-            ) {
-                Icon(Icons.Default.Add, "할 일 추가", tint = Color.White)
-            }
-        }
-    ) { padding ->
-        if (todos.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = smartList.icon,
-                        style = MaterialTheme.typography.displayLarge
-                    )
-                    Text(
-                        text = "할 일이 없습니다",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = TossGray400
-                    )
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(todos, key = { it.id }) { todo ->
-                    com.heodongun.ugoal.ui.components.TodoItem(
-                        todo = todo,
-                        onToggleComplete = { /* Handle */ },
-                        onDelete = { /* Handle */ }
-                    )
-                }
-            }
-        }
-    }
-}
-
-private fun parseColor(colorString: String): Color {
-    return try {
-        Color(android.graphics.Color.parseColor(colorString))
-    } catch (e: Exception) {
-        TossBlue
-    }
-}

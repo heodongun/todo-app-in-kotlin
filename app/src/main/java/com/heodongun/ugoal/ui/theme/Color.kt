@@ -34,3 +34,12 @@ val GoalColorPink = Color(0xFFFF4081)
 val GoalColorOrange = Color(0xFFFF6E40)
 val GoalColorGreen = Color(0xFF00C853)
 val GoalColorTeal = Color(0xFF00BFA5)
+val Orange500 = Color(0xFFFF9800) // Added Orange500
+
+fun parseColor(colorString: String): Color {
+    return try {
+        Color(android.graphics.Color.parseColor(colorString))
+    } catch (e: Exception) {
+        TossBlue
+    }
+}

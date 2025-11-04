@@ -5,6 +5,15 @@ import java.time.LocalDate
 
 object FilterEngine {
 
+    private fun safeParseDate(dateString: String?): LocalDate? {
+        if (dateString == null) return null
+        return try {
+            LocalDate.parse(dateString)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun applyFilter(
         todos: List<EnhancedTodo>,
         filter: ListFilter,
@@ -39,13 +48,8 @@ object FilterEngine {
                     val today = LocalDate.now()
                     val endOfWeek = today.plusDays(7 - today.dayOfWeek.value.toLong())
                     filtered.filter { todo ->
-                        todo.dueDate?.let { dueDate ->
-                            try {
-                                val date = LocalDate.parse(dueDate)
-                                date in today..endOfWeek
-                            } catch (e: Exception) {
-                                false
-                            }
+                        safeParseDate(todo.dueDate)?.let { date ->
+                            date in today..endOfWeek
                         } ?: false
                     }
                 }
@@ -54,13 +58,8 @@ object FilterEngine {
                     val startOfNextWeek = today.plusDays(8 - today.dayOfWeek.value.toLong())
                     val endOfNextWeek = startOfNextWeek.plusDays(6)
                     filtered.filter { todo ->
-                        todo.dueDate?.let { dueDate ->
-                            try {
-                                val date = LocalDate.parse(dueDate)
-                                date in startOfNextWeek..endOfNextWeek
-                            } catch (e: Exception) {
-                                false
-                            }
+                        safeParseDate(todo.dueDate)?.let { date ->
+                            date in startOfNextWeek..endOfNextWeek
                         } ?: false
                     }
                 }
@@ -69,13 +68,8 @@ object FilterEngine {
                     val startOfMonth = today.withDayOfMonth(1)
                     val endOfMonth = today.withDayOfMonth(today.lengthOfMonth())
                     filtered.filter { todo ->
-                        todo.dueDate?.let { dueDate ->
-                            try {
-                                val date = LocalDate.parse(dueDate)
-                                date in startOfMonth..endOfMonth
-                            } catch (e: Exception) {
-                                false
-                            }
+                        safeParseDate(todo.dueDate)?.let { date ->
+                            date in startOfMonth..endOfMonth
                         } ?: false
                     }
                 }
@@ -84,20 +78,15 @@ object FilterEngine {
                 }
                 DateRangeType.CUSTOM -> {
                     filtered.filter { todo ->
-                        todo.dueDate?.let { dueDate ->
-                            try {
-                                val date = LocalDate.parse(dueDate)
-                                val start = range.start?.let { LocalDate.parse(it) }
-                                val end = range.end?.let { LocalDate.parse(it) }
+                        safeParseDate(todo.dueDate)?.let { date ->
+                            val start = safeParseDate(range.start)
+                            val end = safeParseDate(range.end)
 
-                                when {
-                                    start != null && end != null -> date in start..end
-                                    start != null -> date >= start
-                                    end != null -> date <= end
-                                    else -> true
-                                }
-                            } catch (e: Exception) {
-                                false
+                            when {
+                                start != null && end != null -> date in start..end
+                                start != null -> date >= start
+                                end != null -> date <= end
+                                else -> true
                             }
                         } ?: false
                     }

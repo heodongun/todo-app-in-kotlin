@@ -24,9 +24,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.heodongun.ugoal.data.models.EnhancedTodo
+import com.heodongun.ugoal.data.models.Priority
 import com.heodongun.ugoal.ui.theme.*
 import com.heodongun.ugoal.utils.HapticFeedback
 import kotlin.math.roundToInt
+import androidx.compose.material.icons.filled.Flag
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -133,6 +135,22 @@ fun TodoItem(
                             onClick()
                         }
                 )
+
+                // Priority Indicator
+                if (todo.priority != Priority.NONE) {
+                    val priorityColor = when (todo.priority) {
+                        Priority.HIGH -> ErrorRed
+                        Priority.MEDIUM -> Orange500
+                        Priority.LOW -> TossBlue
+                        else -> Color.Transparent
+                    }
+                    Icon(
+                        imageVector = Icons.Filled.Flag,
+                        contentDescription = "Priority ${todo.priority.name}",
+                        tint = priorityColor,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
 
                 // Edit button
                 IconButton(
